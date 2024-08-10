@@ -1,16 +1,28 @@
 import ModelClient from "@azure-rest/ai-inference";
 import { AzureKeyCredential } from "@azure/core-auth";
+import { z } from 'zod';
 
 const endpoint = process.env.AZURE_ENDPOINT;
 const apiKey = process.env.AZURE_API_KEY;
 
 const crisisKeywords = ['suicide', 'kill myself', 'want to die', 'end my life'];
 
+const chatSchema = z.object({
+  message: z.string(),
+  mood: z.number().min(1).max(10),
+  username: z.string(),
+  model: z.string(),
+});
+
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const { message, mood, username, model } = req.body;
+      const { message, mood, username, model } = chatSchema.parse(req.body);
       const isCrisis = crisisKeywords.some(keyword => message.toLowerCase().includes(keyword));
+
+      if (!endpoint || !apiKey) {
+        throw new Error('Azure configuration is missing');
+      }
 
       const client = new ModelClient(endpoint, new AzureKeyCredential(apiKey));
 
@@ -27,7 +39,7 @@ export default async function handler(req, res) {
       });
 
       if (response.status !== "200") {
-        throw response.body.error;
+        throw new Error(response.body.error || 'Unknown error occurred');
       }
 
       const aiResponse = response.body.choices[0].message.content.trim();
@@ -37,7 +49,10 @@ export default async function handler(req, res) {
         crisis: isCrisis
       });
     } catch (error) {
-      console.error(error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      console.error('Chat API error:', error);
       res.status(500).json({ error: 'An error occurred while processing your request.' });
     }
   } else {

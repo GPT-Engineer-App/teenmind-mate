@@ -1,14 +1,21 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { sendVerificationEmail } from '../../../utils/email';
+import { z } from 'zod';
 
 const prisma = new PrismaClient();
 
+const registerSchema = z.object({
+  username: z.string().min(3).max(20),
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { username, email, password } = req.body;
-
     try {
+      const { username, email, password } = registerSchema.parse(req.body);
+
       // Check if user already exists
       const existingUser = await prisma.user.findFirst({
         where: {
@@ -54,6 +61,9 @@ export default async function handler(req, res) {
 
       res.status(201).json({ message: 'User registered successfully. Please check your email for verification.' });
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
       console.error('Registration error:', error);
       res.status(500).json({ error: 'An error occurred during registration' });
     }

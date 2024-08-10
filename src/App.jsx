@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
 import ChangePassword from "./pages/ChangePassword";
 import BuildProfile from "./pages/BuildProfile";
 
@@ -82,6 +83,7 @@ const App = () => {
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/admin" element={<ProtectedRoute adminOnly={true}><Admin /></ProtectedRoute>} />
+                  <Route path="/admin-login" element={<AdminLogin />} />
                   <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
                   <Route path="/build-profile" element={<ProtectedRoute><BuildProfile /></ProtectedRoute>} />
                 </Routes>

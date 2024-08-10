@@ -15,17 +15,26 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login(username, password);
-    if (success) {
-      if (user.isDefaultPassword) {
-        navigate('/change-password');
-      } else {
+    try {
+      const success = await login(username, password);
+      if (success) {
+        toast({
+          title: "Login Successful",
+          description: "Welcome back!",
+        });
         navigate('/');
+      } else {
+        toast({
+          title: "Login Failed",
+          description: "Invalid username or password",
+          variant: "destructive",
+        });
       }
-    } else {
+    } catch (error) {
+      console.error('Login error:', error);
       toast({
-        title: "Login Failed",
-        description: "Invalid username or password",
+        title: "Login Error",
+        description: "An error occurred during login",
         variant: "destructive",
       });
     }

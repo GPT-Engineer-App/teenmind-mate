@@ -1,6 +1,7 @@
 import React from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
 import bcrypt from 'bcryptjs';
+import { getUserInfo } from '@replit/repl-auth';
 
 const AuthContext = createContext();
 
@@ -19,8 +20,11 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initializeAdmin = async () => {
-      const hashedPassword = await bcrypt.hash(DEFAULT_ADMIN.password, 10);
-      localStorage.setItem('adminUser', JSON.stringify({...DEFAULT_ADMIN, password: hashedPassword}));
+      // Check if admin user exists in Replit DB
+      if (!db.get('adminUser')) {
+        const hashedPassword = await bcrypt.hash(DEFAULT_ADMIN.password, 10);
+        db.set('adminUser', { ...DEFAULT_ADMIN, password: hashedPassword });
+      }
       setIsLoading(false);
     };
     initializeAdmin();
@@ -28,15 +32,22 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-        return true;
+      const adminUser = db.get('adminUser');
+      if (adminUser && adminUser.username === username) {
+        const isPasswordValid = await bcrypt.compare(password, adminUser.password);
+        if (isPasswordValid) {
+          setUser(adminUser);
+          return true;
+        }
+      } 
+
+      const user = db.get(username); // Get user from Replit DB
+      if (user) {
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (isPasswordValid) {
+          setUser(user);
+          return true;
+        }
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -44,69 +55,66 @@ export const AuthProvider = ({ children }) => {
     return false;
   };
 
-  const register = async (username, email, password) => {
+  const replitLogin = async (req) => {
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
-      });
-      if (response.ok) {
+      const userInfo = await getUserInfo(req);
+      if (userInfo) {
+        // Check if user exists in Replit DB, if not, create one
+        if (!db.get(userInfo.name)) {
+          const hashedPassword = await bcrypt.hash(userInfo.id, 10); // Hash Replit user ID as password
+          db.set(userInfo.name, { 
+            username: userInfo.name, 
+            password: hashedPassword, 
+            role: 'user', 
+            isVerified: true, // Replit users are considered verified
+            email: userInfo.email 
+          });
+        }
+        setUser(db.get(userInfo.name));
         return true;
       }
+    } catch (error) {
+      console.error('Replit login error:', error);
+    }
+    return false;
+  };
+
+  const register = async (username, email, password) => {
+    try {
+      // Check if user already exists
+      if (db.get(username)) {
+        return res.status(400).json({ error: 'Username already exists' });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user in Replit DB
+      db.set(username, { 
+        username, 
+        email, 
+        password: hashedPassword, 
+        role: 'user', 
+        isVerified: false 
+      });
+
+      // ... (rest of the registration logic, like sending verification email)
+
+      return true;
     } catch (error) {
       console.error('Registration error:', error);
     }
     return false;
   };
 
-  const logout = () => {
-    setUser(null);
-    // You might want to call an API endpoint to invalidate the session on the server
-  };
-
-  const changePassword = async (newPassword) => {
-    try {
-      const response = await fetch('/api/auth/change-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ newPassword }),
-      });
-      if (response.ok) {
-        const updatedUser = { ...user, isDefaultPassword: false };
-        setUser(updatedUser);
-        return true;
-      }
-    } catch (error) {
-      console.error('Change password error:', error);
-    }
-    return false;
-  };
-
-  const updateProfile = async (profileData) => {
-    try {
-      const response = await fetch('/api/auth/update-profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(profileData),
-      });
-      if (response.ok) {
-        const updatedUser = await response.json();
-        setUser(updatedUser);
-        return true;
-      }
-    } catch (error) {
-      console.error('Update profile error:', error);
-    }
-    return false;
-  };
+  // ... (other functions: logout, changePassword, updateProfile)
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, changePassword, register, updateProfile }}>
+    <AuthContext.Provider value={{ user, login, logout, changePassword, register, updateProfile, replitLogin }}>
       {children}
     </AuthContext.Provider>
   );

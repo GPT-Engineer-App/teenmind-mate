@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { login, user } = useAuth();
+  const { login, user, replitLogin } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -26,6 +26,19 @@ const Login = () => {
       toast({
         title: "Login Failed",
         description: "Invalid username or password",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleReplitLogin = async () => {
+    const success = await replitLogin(); // Assuming you have a way to pass the request object here
+    if (success) {
+      navigate('/');
+    } else {
+      toast({
+        title: "Replit Login Failed",
+        description: "Please try again",
         variant: "destructive",
       });
     }
@@ -55,6 +68,9 @@ const Login = () => {
             />
             <Button type="submit" className="w-full">Login</Button>
           </form>
+          <Button variant="secondary" onClick={handleReplitLogin} className="w-full mt-2">
+            Login with Replit
+          </Button>
         </CardContent>
       </Card>
     </div>

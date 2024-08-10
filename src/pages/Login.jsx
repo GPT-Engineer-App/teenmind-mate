@@ -16,8 +16,15 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const success = await login(username, password);
-      if (success) {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await response.json();
+      if (response.ok) {
         toast({
           title: "Login Successful",
           description: "Welcome back!",
@@ -26,7 +33,7 @@ const Login = () => {
       } else {
         toast({
           title: "Login Failed",
-          description: "Invalid username or password",
+          description: data.error || "Invalid username or password",
           variant: "destructive",
         });
       }

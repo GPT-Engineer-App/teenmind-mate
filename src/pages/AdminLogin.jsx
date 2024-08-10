@@ -16,8 +16,15 @@ const AdminLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const success = await login(username, password, true);
-      if (success) {
+      const response = await fetch('/api/auth/admin-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await response.json();
+      if (response.ok) {
         toast({
           title: "Admin Login Successful",
           description: "Welcome back, admin!",
@@ -26,7 +33,7 @@ const AdminLogin = () => {
       } else {
         toast({
           title: "Admin Login Failed",
-          description: "Invalid username or password",
+          description: data.error || "Invalid username or password",
           variant: "destructive",
         });
       }

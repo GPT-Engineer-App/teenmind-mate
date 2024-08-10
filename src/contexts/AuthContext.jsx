@@ -30,8 +30,18 @@ export const AuthProvider = ({ children }) => {
     initializeAdmin();
   }, []);
 
-  const login = async (username, password) => {
+  useEffect(() => {
+    // Check for existing user session
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setIsLoading(false);
+  }, []);
+
+  const login = async (username, password, isAdminLogin = false) => {
     try {
+<<<<<<< HEAD
       const adminUser = db.get('adminUser');
       if (adminUser && adminUser.username === username) {
         const isPasswordValid = await bcrypt.compare(password, adminUser.password);
@@ -48,6 +58,27 @@ export const AuthProvider = ({ children }) => {
           setUser(user);
           return true;
         }
+=======
+      let response;
+      if (isAdminLogin) {
+        response = await fetch('/api/auth/admin-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+      } else {
+        response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+      }
+      
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        return true;
+>>>>>>> refs/remotes/origin/main
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -109,12 +140,22 @@ export const AuthProvider = ({ children }) => {
 
   // ... (other functions: logout, changePassword, updateProfile)
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const value = {
+    user,
+    login,
+    logout,
+    changePassword,
+    register,
+    updateProfile,
+    isLoading
+  };
 
   return (
+<<<<<<< HEAD
     <AuthContext.Provider value={{ user, login, logout, changePassword, register, updateProfile, replitLogin }}>
+=======
+    <AuthContext.Provider value={value}>
+>>>>>>> refs/remotes/origin/main
       {children}
     </AuthContext.Provider>
   );

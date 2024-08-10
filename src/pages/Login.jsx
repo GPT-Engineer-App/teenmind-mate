@@ -1,31 +1,53 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 
 const Login = () => {
+<<<<<<< HEAD
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { login, user, replitLogin } = useAuth();
+=======
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const { login, user } = useAuth();
+>>>>>>> refs/remotes/origin/main
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login(username, password);
-    if (success) {
-      if (user.isDefaultPassword) {
-        navigate('/change-password');
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        toast({
+          title: "Login Successful",
+          description: "Welcome back!",
+        });
+        navigate("/");
       } else {
-        navigate('/');
+        toast({
+          title: "Login Failed",
+          description: data.error || "Invalid username or password",
+          variant: "destructive",
+        });
       }
-    } else {
+    } catch (error) {
+      console.error("Login error:", error);
       toast({
-        title: "Login Failed",
-        description: "Invalid username or password",
+        title: "Login Error",
+        description: "An error occurred during login",
         variant: "destructive",
       });
     }
@@ -66,7 +88,9 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <Button type="submit" className="w-full">Login</Button>
+            <Button type="submit" className="w-full">
+              Login
+            </Button>
           </form>
           <Button variant="secondary" onClick={handleReplitLogin} className="w-full mt-2">
             Login with Replit

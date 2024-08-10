@@ -6,55 +6,52 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 
-const Register = () => {
+const AdminLogin = () => {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const { register } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
-      return;
-    }
     try {
-      const success = await register(username, email, password);
-      if (success) {
+      const response = await fetch("/api/auth/admin-login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await response.json();
+      if (response.ok) {
         toast({
-          title: "Registration Successful",
-          description: "Please check your email for verification.",
+          title: "Admin Login Successful",
+          description: "Welcome back, admin!",
         });
-        navigate("/login");
+        navigate("/admin");
       } else {
         toast({
-          title: "Registration Failed",
-          description: "Please try again",
+          title: "Admin Login Failed",
+          description: data.error || "Invalid username or password",
           variant: "destructive",
         });
       }
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("Admin login error:", error);
       toast({
-        title: "Registration Error",
-        description: "An error occurred during registration",
+        title: "Admin Login Error",
+        description: "An error occurred during login",
         variant: "destructive",
       });
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center h-screen bg-gray-100">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Register</CardTitle>
+          <CardTitle>Admin Login</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -66,28 +63,14 @@ const Register = () => {
               required
             />
             <Input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <Input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <Input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
             <Button type="submit" className="w-full">
-              Register
+              Login as Admin
             </Button>
           </form>
         </CardContent>
@@ -96,4 +79,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default AdminLogin;

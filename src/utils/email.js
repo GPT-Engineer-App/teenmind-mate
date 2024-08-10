@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -15,7 +15,7 @@ export async function sendVerificationEmail(to, token) {
   const mailOptions = {
     from: process.env.EMAIL_FROM,
     to,
-    subject: 'Verify Your Email',
+    subject: "Verify Your Email",
     html: `
       <h1>Welcome to Teen Mental Health Support</h1>
       <p>Please click the link below to verify your email address:</p>
@@ -26,9 +26,9 @@ export async function sendVerificationEmail(to, token) {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Verification email sent successfully');
+    console.log("Verification email sent successfully");
   } catch (error) {
-    console.error('Error sending verification email:', error);
+    console.error("Error sending verification email:", error);
     throw error;
   }
 }

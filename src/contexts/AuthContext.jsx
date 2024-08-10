@@ -28,15 +28,33 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-        return true;
+      // Check if it's an admin login
+      if (username === DEFAULT_ADMIN.username) {
+        const storedAdmin = JSON.parse(localStorage.getItem('adminUser'));
+        if (storedAdmin && await bcrypt.compare(password, storedAdmin.password)) {
+          // Verify additional information
+          const response = await fetch('/api/auth/verify-admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+          });
+          if (response.ok) {
+            setUser(storedAdmin);
+            return true;
+          }
+        }
+      } else {
+        // Regular user login
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+          return true;
+        }
       }
     } catch (error) {
       console.error('Login error:', error);

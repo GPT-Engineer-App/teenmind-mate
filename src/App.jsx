@@ -64,7 +64,7 @@ const App = () => {
                     <>
                       {user.role === 'admin' && (
                         <li>
-                          <Link to="/admin" className="hover:text-gray-300">Admin</Link>
+                          <Link to="/admin" className="hover:text-gray-300">Admin Settings</Link>
                         </li>
                       )}
                       <li>
@@ -86,6 +86,9 @@ const App = () => {
                   <Route path="/build-profile" element={<ProtectedRoute><BuildProfile /></ProtectedRoute>} />
                 </Routes>
               </main>
+              <footer className="bg-gray-800 text-white p-4 text-center">
+                <Link to="/admin-login" className="hover:text-gray-300">Admin Login</Link>
+              </footer>
             </div>
           </BrowserRouter>
         </TooltipProvider>

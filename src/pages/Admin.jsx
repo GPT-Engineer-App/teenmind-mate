@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -7,25 +7,25 @@ import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
-  const [azureEndpoint, setAzureEndpoint] = useState('');
-  const [azureApiKey, setAzureApiKey] = useState('');
+  const [azureEndpoint, setAzureEndpoint] = useState("");
+  const [azureApiKey, setAzureApiKey] = useState("");
   const [availableModels, setAvailableModels] = useState([]);
-  const [emailHost, setEmailHost] = useState('');
-  const [emailPort, setEmailPort] = useState('');
-  const [emailUser, setEmailUser] = useState('');
-  const [emailPass, setEmailPass] = useState('');
-  const [emailFrom, setEmailFrom] = useState('');
-  const [baseUrl, setBaseUrl] = useState('');
+  const [emailHost, setEmailHost] = useState("");
+  const [emailPort, setEmailPort] = useState("");
+  const [emailUser, setEmailUser] = useState("");
+  const [emailPass, setEmailPass] = useState("");
+  const [emailFrom, setEmailFrom] = useState("");
+  const [baseUrl, setBaseUrl] = useState("");
   const { user } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
     // Fetch current settings and available models
     const fetchSettings = async () => {
-      const response = await fetch('/api/admin/settings');
+      const response = await fetch("/api/admin/settings");
       const data = await response.json();
-      setAzureEndpoint(data.azureEndpoint || '');
-      setAzureApiKey(data.azureApiKey || '');
+      setAzureEndpoint(data.azureEndpoint || "");
+      setAzureApiKey(data.azureApiKey || "");
       setAvailableModels(data.availableModels || []);
     };
     fetchSettings();
@@ -33,9 +33,9 @@ const Admin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch('/api/admin/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("/api/admin/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         azureEndpoint,
         azureApiKey,
@@ -44,7 +44,7 @@ const Admin = () => {
         emailUser,
         emailPass,
         emailFrom,
-        baseUrl
+        baseUrl,
       }),
     });
     if (response.ok) {
@@ -61,7 +61,7 @@ const Admin = () => {
     }
   };
 
-  if (user?.role !== 'admin') {
+  if (user?.role !== "admin") {
     return <div>Access denied. Admin only.</div>;
   }
 

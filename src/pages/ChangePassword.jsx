@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 
 const ChangePassword = () => {
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const { changePassword } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -28,7 +28,7 @@ const ChangePassword = () => {
       title: "Success",
       description: "Password changed successfully",
     });
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -53,7 +53,9 @@ const ChangePassword = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
-            <Button type="submit" className="w-full">Change Password</Button>
+            <Button type="submit" className="w-full">
+              Change Password
+            </Button>
           </form>
         </CardContent>
       </Card>

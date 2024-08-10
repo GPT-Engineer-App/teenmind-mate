@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 
 const AdminLogin = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -16,10 +16,10 @@ const AdminLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/auth/admin-login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/admin-login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
       });
@@ -29,7 +29,7 @@ const AdminLogin = () => {
           title: "Admin Login Successful",
           description: "Welcome back, admin!",
         });
-        navigate('/admin');
+        navigate("/admin");
       } else {
         toast({
           title: "Admin Login Failed",
@@ -38,7 +38,7 @@ const AdminLogin = () => {
         });
       }
     } catch (error) {
-      console.error('Admin login error:', error);
+      console.error("Admin login error:", error);
       toast({
         title: "Admin Login Error",
         description: "An error occurred during login",
@@ -69,7 +69,9 @@ const AdminLogin = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <Button type="submit" className="w-full">Login as Admin</Button>
+            <Button type="submit" className="w-full">
+              Login as Admin
+            </Button>
           </form>
         </CardContent>
       </Card>

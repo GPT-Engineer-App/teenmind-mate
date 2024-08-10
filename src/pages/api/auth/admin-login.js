@@ -1,6 +1,6 @@
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
-import { z } from 'zod';
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+import { z } from "zod";
 
 const prisma = new PrismaClient();
 
@@ -10,22 +10,23 @@ const adminLoginSchema = z.object({
 });
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
+  if (req.method === "POST") {
     try {
       const { username, password } = adminLoginSchema.parse(req.body);
 
       const admin = await prisma.user.findFirst({
-        where: { username, role: 'admin' },
+        where: { username, role: "admin" },
       });
 
       if (!admin) {
-        return res.status(400).json({ error: 'Invalid username or password' });
+        return res.status(400).json({ error: "Invalid username or password" });
       }
 
+      // Perform Password Comparison on the Server
       const isPasswordValid = await bcrypt.compare(password, admin.password);
 
       if (!isPasswordValid) {
-        return res.status(400).json({ error: 'Invalid username or password' });
+        return res.status(400).json({ error: "Invalid username or password" });
       }
 
       // Here you would typically create a session or JWT token
@@ -36,11 +37,11 @@ export default async function handler(req, res) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: error.errors });
       }
-      console.error('Admin login error:', error);
-      res.status(500).json({ error: 'An error occurred during admin login' });
+      console.error("Admin login error:", error);
+      res.status(500).json({ error: "An error occurred during admin login" });
     }
   } else {
-    res.setHeader('Allow', ['POST']);
+    res.setHeader("Allow", ["POST"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

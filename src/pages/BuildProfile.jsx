@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const BuildProfile = () => {
-  const [name, setName] = useState('');
-  const [age, setAge] = useState('');
-  const [gender, setGender] = useState('');
+  const [name, setName] = useState("");
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState("");
   const { user, updateProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -23,7 +29,7 @@ const BuildProfile = () => {
         title: "Profile Updated",
         description: "Your profile has been successfully created.",
       });
-      navigate('/');
+      navigate("/");
     } catch (error) {
       toast({
         title: "Error",
@@ -65,10 +71,14 @@ const BuildProfile = () => {
                 <SelectItem value="male">Male</SelectItem>
                 <SelectItem value="female">Female</SelectItem>
                 <SelectItem value="other">Other</SelectItem>
-                <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+                <SelectItem value="prefer-not-to-say">
+                  Prefer not to say
+                </SelectItem>
               </SelectContent>
             </Select>
-            <Button type="submit" className="w-full">Create Profile</Button>
+            <Button type="submit" className="w-full">
+              Create Profile
+            </Button>
           </form>
         </CardContent>
       </Card>

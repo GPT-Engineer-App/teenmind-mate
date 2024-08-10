@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 
 const Register = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const { register } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -32,7 +32,7 @@ const Register = () => {
           title: "Registration Successful",
           description: "Please check your email for verification.",
         });
-        navigate('/login');
+        navigate("/login");
       } else {
         toast({
           title: "Registration Failed",
@@ -41,7 +41,7 @@ const Register = () => {
         });
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
       toast({
         title: "Registration Error",
         description: "An error occurred during registration",
@@ -86,7 +86,9 @@ const Register = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
-            <Button type="submit" className="w-full">Register</Button>
+            <Button type="submit" className="w-full">
+              Register
+            </Button>
           </form>
         </CardContent>
       </Card>

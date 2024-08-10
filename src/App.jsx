@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import ChangePassword from "./pages/ChangePassword";
+import BuildProfile from "./pages/BuildProfile";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,9 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   }
   if (user.isDefaultPassword && window.location.pathname !== '/change-password') {
     return <Navigate to="/change-password" replace />;
+  }
+  if (!user.name && window.location.pathname !== '/build-profile') {
+    return <Navigate to="/build-profile" replace />;
   }
   return children;
 };
@@ -79,6 +83,7 @@ const App = () => {
                   <Route path="/register" element={<Register />} />
                   <Route path="/admin" element={<ProtectedRoute adminOnly={true}><Admin /></ProtectedRoute>} />
                   <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
+                  <Route path="/build-profile" element={<ProtectedRoute><BuildProfile /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>

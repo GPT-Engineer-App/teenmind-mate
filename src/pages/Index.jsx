@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { useQuery } from "@tanstack/react-query"
 import { Slider } from "@/components/ui/slider"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAuth } from '../contexts/AuthContext';
 
 const Index = () => {
@@ -14,15 +15,28 @@ const Index = () => {
   const [input, setInput] = useState('');
   const [mood, setMood] = useState(5);
   const [isTyping, setIsTyping] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('');
+  const [availableModels, setAvailableModels] = useState([]);
   const { toast } = useToast();
   const { user } = useAuth();
 
+  useEffect(() => {
+    // Fetch available models
+    const fetchModels = async () => {
+      const response = await fetch('/api/models');
+      const data = await response.json();
+      setAvailableModels(data.models);
+      setSelectedModel(data.models[0]); // Set the first model as default
+    };
+    fetchModels();
+  }, []);
+
   const { data: aiResponse, refetch: fetchAIResponse, isLoading } = useQuery({
-    queryKey: ['aiResponse', input],
+    queryKey: ['aiResponse', input, selectedModel],
     queryFn: () => fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: input, mood, username: user.username })
+      body: JSON.stringify({ message: input, mood, username: user.username, model: selectedModel })
     }).then(res => res.json()),
     enabled: false
   });
@@ -75,6 +89,18 @@ const Index = () => {
               </div>
             </AlertDescription>
           </Alert>
+          <div className="mb-4">
+            <Select value={selectedModel} onValueChange={setSelectedModel}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a model" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableModels.map((model) => (
+                  <SelectItem key={model} value={model}>{model}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <ScrollArea className="h-[50vh] mb-4 p-4 border rounded-lg">
             {messages.map((message, index) => (
               <div key={index} className={`mb-4 ${message.sender === 'user' ? 'text-right' : 'text-left'}`}>

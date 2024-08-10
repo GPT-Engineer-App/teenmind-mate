@@ -7,13 +7,17 @@ import { useState } from "react";
 import AuthProvider, { useAuth } from "./contexts/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user } = useAuth();
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+  if (adminOnly && user.role !== 'admin') {
+    return <Navigate to="/" replace />;
   }
   return children;
 };
@@ -49,9 +53,16 @@ const App = () => {
                     </>
                   )}
                   {user && (
-                    <li>
-                      <button onClick={() => setUser(null)} className="hover:text-gray-300">Logout</button>
-                    </li>
+                    <>
+                      {user.role === 'admin' && (
+                        <li>
+                          <Link to="/admin" className="hover:text-gray-300">Admin</Link>
+                        </li>
+                      )}
+                      <li>
+                        <button onClick={() => setUser(null)} className="hover:text-gray-300">Logout</button>
+                      </li>
+                    </>
                   )}
                 </ul>
               </nav>
@@ -62,6 +73,7 @@ const App = () => {
                   ))}
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
+                  <Route path="/admin" element={<ProtectedRoute adminOnly={true}><Admin /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>

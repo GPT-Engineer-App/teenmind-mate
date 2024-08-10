@@ -6,54 +6,54 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 
-const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const { login, user } = useAuth();
+const ChangePassword = () => {
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const { changePassword } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login(username, password);
-    if (success) {
-      if (user.isDefaultPassword) {
-        navigate('/change-password');
-      } else {
-        navigate('/');
-      }
-    } else {
+    if (newPassword !== confirmPassword) {
       toast({
-        title: "Login Failed",
-        description: "Invalid username or password",
+        title: "Error",
+        description: "Passwords do not match",
         variant: "destructive",
       });
+      return;
     }
+    await changePassword(newPassword);
+    toast({
+      title: "Success",
+      description: "Password changed successfully",
+    });
+    navigate('/');
   };
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Login</CardTitle>
+          <CardTitle>Change Password</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="password"
+              placeholder="New Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
               required
             />
             <Input
               type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Confirm New Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
-            <Button type="submit" className="w-full">Login</Button>
+            <Button type="submit" className="w-full">Change Password</Button>
           </form>
         </CardContent>
       </Card>
@@ -61,4 +61,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ChangePassword;

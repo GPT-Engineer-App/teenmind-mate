@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
+import ChangePassword from "./pages/ChangePassword";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,9 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   }
   if (adminOnly && user.role !== 'admin') {
     return <Navigate to="/" replace />;
+  }
+  if (user.isDefaultPassword && window.location.pathname !== '/change-password') {
+    return <Navigate to="/change-password" replace />;
   }
   return children;
 };
@@ -74,6 +78,7 @@ const App = () => {
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/admin" element={<ProtectedRoute adminOnly={true}><Admin /></ProtectedRoute>} />
+                  <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>

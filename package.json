@@ -41,6 +41,7 @@
     "@radix-ui/react-tooltip": "^1.1.0",
     "@tanstack/react-query": "^5.48.0",
     "@replit/repl-auth": "^3.3.0",
+    "@replit/database": "^2.0.2", // Add Replit Database package
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",

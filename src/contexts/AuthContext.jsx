@@ -2,8 +2,10 @@ import React from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
 import bcrypt from 'bcryptjs';
 import { getUserInfo } from '@replit/repl-auth';
+import Client from '@replit/database'; // Import Replit Database client
 
 const AuthContext = createContext();
+const db = new Client(); // Initialize Replit Database client
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -22,9 +24,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAdmin = async () => {
       // Check if admin user exists in Replit DB
-      if (!db.get('adminUser')) {
+      const adminUser = await db.get('adminUser'); // Use db client to get admin user
+      if (!adminUser) {
         const hashedPassword = await bcrypt.hash(DEFAULT_ADMIN.password, 10);
-        db.set('adminUser', { ...DEFAULT_ADMIN, password: hashedPassword });
+        await db.set('adminUser', { ...DEFAULT_ADMIN, password: hashedPassword }); // Use db client to set admin user
       }
       setIsLoading(false);
     };
@@ -44,9 +47,9 @@ export const AuthProvider = ({ children }) => {
     try {
       let loginUser;
       if (isAdminLogin) {
-        loginUser = db.get('adminUser');
+        loginUser = await db.get('adminUser'); // Use db client to get admin user
       } else {
-        loginUser = db.get(username);
+        loginUser = await db.get(username); // Use db client to get user
       }
 
       if (loginUser && loginUser.username === username) {
@@ -68,9 +71,10 @@ export const AuthProvider = ({ children }) => {
       const userInfo = await getUserInfo(req);
       if (userInfo) {
         // Check if user exists in Replit DB, if not, create one
-        if (!db.get(userInfo.name)) {
+        const existingUser = await db.get(userInfo.name); // Use db client to get user
+        if (!existingUser) {
           const hashedPassword = await bcrypt.hash(userInfo.id, 10); // Hash Replit user ID as password
-          db.set(userInfo.name, { 
+          await db.set(userInfo.name, { // Use db client to set user
             username: userInfo.name, 
             password: hashedPassword, 
             role: 'user', 
@@ -78,7 +82,7 @@ export const AuthProvider = ({ children }) => {
             email: userInfo.email 
           });
         }
-        const replitUser = db.get(userInfo.name);
+        const replitUser = await db.get(userInfo.name); // Use db client to get user
         setUser(replitUser);
         localStorage.setItem('user', JSON.stringify(replitUser)); // Store user in localStorage
         return true;
@@ -92,7 +96,8 @@ export const AuthProvider = ({ children }) => {
   const register = async (username, email, password) => {
     try {
       // Check if user already exists
-      if (db.get(username)) {
+      const existingUser = await db.get(username); // Use db client to get user
+      if (existingUser) {
         return false; // Or throw an error
       }
 
@@ -100,7 +105,7 @@ export const AuthProvider = ({ children }) => {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create user in Replit DB
-      db.set(username, { 
+      await db.set(username, { // Use db client to set user
         username, 
         email, 
         password: hashedPassword, 
@@ -131,7 +136,7 @@ export const AuthProvider = ({ children }) => {
 
       const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
-      db.set(user.username, { ...user, password: hashedNewPassword, isDefaultPassword: false });
+      await db.set(user.username, { ...user, password: hashedNewPassword, isDefaultPassword: false }); // Use db client to set user
       setUser({ ...user, password: hashedNewPassword, isDefaultPassword: false });
       localStorage.setItem('user', JSON.stringify({ ...user, password: hashedNewPassword, isDefaultPassword: false })); // Update user in localStorage
     } catch (error) {
@@ -146,7 +151,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error('User not logged in');
       }
 
-      db.set(user.username, { ...user, ...profileData });
+      await db.set(user.username, { ...user, ...profileData }); // Use db client to set user
       setUser({ ...user, ...profileData });
       localStorage.setItem('user', JSON.stringify({ ...user, ...profileData })); // Update user in localStorage
     } catch (error) {

@@ -26,6 +26,15 @@ export const AuthProvider = ({ children }) => {
     initializeAdmin();
   }, []);
 
+  useEffect(() => {
+    // Check for existing user session
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setIsLoading(false);
+  }, []);
+
   const login = async (username, password, isAdminLogin = false) => {
     try {
       let response;
@@ -111,12 +120,18 @@ export const AuthProvider = ({ children }) => {
     return false;
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const value = {
+    user,
+    login,
+    logout,
+    changePassword,
+    register,
+    updateProfile,
+    isLoading
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, changePassword, register, updateProfile }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

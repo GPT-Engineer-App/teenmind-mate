@@ -31,15 +31,11 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   return children;
 };
 
-const App = () => {
+const AppContent = () => {
   const { user, logout } = useAuth();
 
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <BrowserRouter>
+    <BrowserRouter>
             <div className="min-h-screen flex flex-col">
               <nav className="bg-gray-800 text-white p-4">
                 <ul className="flex space-x-4">
@@ -93,6 +89,19 @@ const App = () => {
               </footer>
             </div>
           </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
+  );
+};
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <AppContent />
         </TooltipProvider>
       </QueryClientProvider>
     </AuthProvider>

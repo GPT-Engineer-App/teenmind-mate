@@ -26,45 +26,46 @@ const App = () => {
   const { user, logout } = useAuth();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <BrowserRouter>
-          <div className="min-h-screen flex flex-col">
-            <nav className="bg-gray-800 text-white p-4">
-              <ul className="flex space-x-4">
-                {navItems.map(({ title, to, icon }) => (
-                  <li key={to}>
-                    <Link to={to} className="flex items-center space-x-1 hover:text-gray-300">
-                      {icon}
-                      <span>{title}</span>
-                    </Link>
-                  </li>
-                ))}
-                {!user && (
-                  <>
-                    <li>
-                      <Link to="/login" className="hover:text-gray-300">Login</Link>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <BrowserRouter>
+            <div className="min-h-screen flex flex-col">
+              <nav className="bg-gray-800 text-white p-4">
+                <ul className="flex space-x-4">
+                  {navItems.map(({ title, to, icon }) => (
+                    <li key={to}>
+                      <Link to={to} className="flex items-center space-x-1 hover:text-gray-300">
+                        {icon}
+                        <span>{title}</span>
+                      </Link>
                     </li>
-                    <li>
-                      <Link to="/register" className="hover:text-gray-300">Register</Link>
-                    </li>
-                  </>
-                )}
-                {user && (
-                  <>
-                    {user.role === 'admin' && (
+                  ))}
+                  {!user && (
+                    <>
                       <li>
-                        <Link to="/admin" className="hover:text-gray-300">Admin</Link>
+                        <Link to="/login" className="hover:text-gray-300">Login</Link>
                       </li>
-                    )}
-                    <li>
-                      <button onClick={logout} className="hover:text-gray-300">Logout</button>
-                    </li>
-                  </>
-                )}
-              </ul>
-            </nav>
+                      <li>
+                        <Link to="/register" className="hover:text-gray-300">Register</Link>
+                      </li>
+                    </>
+                  )}
+                  {user && (
+                    <>
+                      {user.role === 'admin' && (
+                        <li>
+                          <Link to="/admin" className="hover:text-gray-300">Admin</Link>
+                        </li>
+                      )}
+                      <li>
+                        <button onClick={logout} className="hover:text-gray-300">Logout</button>
+                      </li>
+                    </>
+                  )}
+                </ul>
+              </nav>
               <main className="flex-grow">
                 <Routes>
                   {navItems.map(({ to, page }) => (

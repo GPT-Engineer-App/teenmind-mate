@@ -27,24 +27,34 @@ const Index = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    // Fetch available models
+    // Fetch available models from the API
     const fetchModels = async () => {
       const response = await fetch("/api/models");
       const data = await response.json();
       setAvailableModels(data.models);
-      // No need to set default model here, it's already set in state
     };
     fetchModels();
-  }, []);
+
+    // Fetch conversation history from Replit DB
+    const fetchConversation = async () => {
+      if (user) {
+        const conversationHistory = await db.get(`conversation_${user.username}`);
+        if (conversationHistory) {
+          setMessages(conversationHistory);
+        }
+      }
+    };
+    fetchConversation();
+  }, [user]);
 
   const {
-      aiResponse,
+     aiResponse,
     refetch: fetchAIResponse,
     isLoading,
   } = useQuery({
-    queryKey: ["aiResponse", input, selectedModel],
-    queryFn: () =>
-      fetch("/api/chat", {
+    queryKey: ["aiResponse", input, selectedModel, mood, user?.username],
+    queryFn: async () => {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -53,15 +63,17 @@ const Index = () => {
           username: user?.username || 'guest', // Use guest if user is not logged in
           model: selectedModel,
         }),
-      }).then((res) => res.json()),
-    enabled: false,
+      });
+      return response.json();
+    },
+    enabled: false, // The query will not execute until fetchAIResponse is called
   });
 
   useEffect(() => {
     if (aiResponse) {
       setMessages((prev) => [
         ...prev,
-        { text: aiResponse.message, sender: "ai" },
+        { text: aiResponse.message, sender: "ai", timestamp: new Date() },
       ]);
       setIsTyping(false);
       if (aiResponse.crisis) {
@@ -77,7 +89,7 @@ const Index = () => {
 
   const handleSend = async () => {
     if (input.trim()) {
-      setMessages((prev) => [...prev, { text: input, sender: "user" }]);
+      setMessages((prev) => [...prev, { text: input, sender: "user", timestamp: new Date() }]);
       setInput("");
       setIsTyping(true);
       await fetchAIResponse();

@@ -1,9 +1,11 @@
 import ModelClient from "@azure-rest/ai-inference";
 import { AzureKeyCredential } from "@azure/core-auth";
 import { z } from 'zod';
+import Client from '@replit/database';
 
 const endpoint = process.env.AZURE_ENDPOINT;
 const apiKey = process.env.AZURE_API_KEY;
+const db = new Client();
 
 const crisisKeywords = ['suicide', 'kill myself', 'want to die', 'end my life'];
 
@@ -44,6 +46,13 @@ export default async function handler(req, res) {
 
       const aiResponse = response.body.choices[0].message.content.trim();
 
+      // Store conversation data in Replit DB
+      await db.set(`conversation_${username}`, [
+        ...(await db.get(`conversation_${username}`) || []),
+        { text: message, sender: 'user', timestamp: new Date() },
+        { text: aiResponse, sender: 'ai', timestamp: new Date() },
+      ]);
+
       res.status(200).json({ 
         message: aiResponse,
         crisis: isCrisis
@@ -63,7 +72,10 @@ export default async function handler(req, res) {
 
 function generateSystemPrompt(mood, username, isCrisis) {
   let prompt = `You are a supportive and empathetic AI assistant designed to help teenagers with mental health concerns. 
-  The user's name is ${username} and their current mood is ${mood}/10 (where 1 is very bad and 10 is very good).`;
+  The user's name is ${username} and their current mood is ${mood}/10 (where 1 is very bad and 10 is very good). 
+  Always respond in a way that is appropriate for a teenager. 
+  Avoid giving medical advice. 
+  If the user expresses thoughts of self-harm or suicide, encourage them to seek help from a trusted adult or a crisis hotline.`;
 
   if (isCrisis) {
     prompt += `\n\nIMPORTANT: The user's message contains signs of a potential crisis. Provide immediate support and encourage the user to seek professional help. Include the contact information for the National Suicide Prevention Lifeline (1-800-273-8255) in your response.`;

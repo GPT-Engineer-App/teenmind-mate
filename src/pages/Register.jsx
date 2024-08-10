@@ -76,4 +76,21 @@ const Register = () => {
               type="password"
               placeholder="Password"
               value={password}
-              onChange
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <Input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+            <Button type="submit">Register</Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+export default Register;

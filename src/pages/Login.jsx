@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { ReplitAuth } from "@replit/repl-auth";
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const { login, user, replitLogin } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const { login, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -35,28 +36,6 @@ const Login = () => {
       toast({
         title: "Login Error",
         description: "An error occurred during login",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleReplitLogin = async () => {
-    try {
-      const success = await replitLogin(window.location); // Pass the window.location object
-      if (success) {
-        navigate('/');
-      } else {
-        toast({
-          title: "Replit Login Failed",
-          description: "Please try again",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Replit login error:", error);
-      toast({
-        title: "Replit Login Error",
-        description: "An error occurred during Replit login",
         variant: "destructive",
       });
     }
@@ -88,9 +67,20 @@ const Login = () => {
               Login
             </Button>
           </form>
-          <Button variant="secondary" onClick={handleReplitLogin} className="w-full mt-2">
-            Login with Replit
-          </Button>
+          <ReplitAuth
+            onAuthSuccess={() => {
+              // Redirect to the home page after successful authentication
+              navigate("/");
+            }}
+            onAuthError={() => {
+              // Show an error message if authentication fails
+              toast({
+                title: "Replit Login Failed",
+                description: "Please try again",
+                variant: "destructive",
+              });
+            }}
+          />
         </CardContent>
       </Card>
     </div>

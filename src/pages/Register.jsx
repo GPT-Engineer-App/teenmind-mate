@@ -36,7 +36,7 @@ const Register = () => {
       } else {
         toast({
           title: "Registration Failed",
-          description: "Please try again",
+          description: "Username or email already exists.",
           variant: "destructive",
         });
       }
@@ -76,24 +76,4 @@ const Register = () => {
               type="password"
               placeholder="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <Input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-            <Button type="submit" className="w-full">
-              Register
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-export default Register;
+              onChange

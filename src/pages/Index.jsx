@@ -18,17 +18,10 @@ import { useAuth } from "../contexts/AuthContext";
 
 const Index = () => {
   const [messages, setMessages] = useState([]);
-<<<<<<< HEAD
   const [input, setInput] = useState('');
   const [mood, setMood] = useState(5); // Default mood value
   const [isTyping, setIsTyping] = useState(false);
   const [selectedModel, setSelectedModel] = useState('gpt-3.5-turbo'); // Default model
-=======
-  const [input, setInput] = useState("");
-  const [mood, setMood] = useState(5);
-  const [isTyping, setIsTyping] = useState(false);
-  const [selectedModel, setSelectedModel] = useState("");
->>>>>>> refs/remotes/origin/main
   const [availableModels, setAvailableModels] = useState([]);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -44,11 +37,8 @@ const Index = () => {
     fetchModels();
   }, []);
 
-<<<<<<< HEAD
-  // ... (rest of the component code)
-=======
   const {
-    data: aiResponse,
+      aiResponse,
     refetch: fetchAIResponse,
     isLoading,
   } = useQuery({
@@ -60,7 +50,7 @@ const Index = () => {
         body: JSON.stringify({
           message: input,
           mood,
-          username: user.username,
+          username: user?.username || 'guest', // Use guest if user is not logged in
           model: selectedModel,
         }),
       }).then((res) => res.json()),
@@ -176,7 +166,6 @@ const Index = () => {
       </Card>
     </div>
   );
->>>>>>> refs/remotes/origin/main
 };
 
 export default Index;

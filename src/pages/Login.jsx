@@ -7,30 +7,17 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 
 const Login = () => {
-<<<<<<< HEAD
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { login, user, replitLogin } = useAuth();
-=======
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const { login, user } = useAuth();
->>>>>>> refs/remotes/origin/main
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
+      const success = await login(username, password);
+      if (success) {
         toast({
           title: "Login Successful",
           description: "Welcome back!",
@@ -39,7 +26,7 @@ const Login = () => {
       } else {
         toast({
           title: "Login Failed",
-          description: data.error || "Invalid username or password",
+          description: "Invalid username or password",
           variant: "destructive",
         });
       }
@@ -54,13 +41,22 @@ const Login = () => {
   };
 
   const handleReplitLogin = async () => {
-    const success = await replitLogin(); // Assuming you have a way to pass the request object here
-    if (success) {
-      navigate('/');
-    } else {
+    try {
+      const success = await replitLogin(window.location); // Pass the window.location object
+      if (success) {
+        navigate('/');
+      } else {
+        toast({
+          title: "Replit Login Failed",
+          description: "Please try again",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Replit login error:", error);
       toast({
-        title: "Replit Login Failed",
-        description: "Please try again",
+        title: "Replit Login Error",
+        description: "An error occurred during Replit login",
         variant: "destructive",
       });
     }

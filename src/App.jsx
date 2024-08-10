@@ -15,7 +15,12 @@ import BuildProfile from "./pages/BuildProfile";
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Loading...</div>; // or a loading spinner component
+  }
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }

@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 const ChangePassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { changePassword } = useAuth();
+  const { changePassword, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -23,12 +23,20 @@ const ChangePassword = () => {
       });
       return;
     }
-    await changePassword(newPassword);
-    toast({
-      title: "Success",
-      description: "Password changed successfully",
-    });
-    navigate("/");
+    try {
+      await changePassword(newPassword);
+      toast({
+        title: "Success",
+        description: "Password changed successfully",
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to change password.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

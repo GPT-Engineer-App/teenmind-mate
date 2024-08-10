@@ -27,6 +27,12 @@ const Admin = () => {
       setAzureEndpoint(data.azureEndpoint || "");
       setAzureApiKey(data.azureApiKey || "");
       setAvailableModels(data.availableModels || []);
+      setEmailHost(data.emailHost || "");
+      setEmailPort(data.emailPort || "");
+      setEmailUser(data.emailUser || "");
+      setEmailPass(data.emailPass || "");
+      setEmailFrom(data.emailFrom || "");
+      setBaseUrl(data.baseUrl || "");
     };
     fetchSettings();
   }, []);

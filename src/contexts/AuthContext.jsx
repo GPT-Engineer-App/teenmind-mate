@@ -11,7 +11,8 @@ const DEFAULT_ADMIN = {
   username: 'admin',
   password: 'admin123', // This will be hashed in the useEffect
   role: 'admin',
-  isDefaultPassword: true
+  isDefaultPassword: true,
+  email: 'admin@example.com' // Added email for admin
 };
 
 export const AuthProvider = ({ children }) => {
@@ -41,44 +42,20 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password, isAdminLogin = false) => {
     try {
-<<<<<<< HEAD
-      const adminUser = db.get('adminUser');
-      if (adminUser && adminUser.username === username) {
-        const isPasswordValid = await bcrypt.compare(password, adminUser.password);
-        if (isPasswordValid) {
-          setUser(adminUser);
-          return true;
-        }
-      } 
-
-      const user = db.get(username); // Get user from Replit DB
-      if (user) {
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (isPasswordValid) {
-          setUser(user);
-          return true;
-        }
-=======
-      let response;
+      let loginUser;
       if (isAdminLogin) {
-        response = await fetch('/api/auth/admin-login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
-        });
+        loginUser = db.get('adminUser');
       } else {
-        response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
-        });
+        loginUser = db.get(username);
       }
-      
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-        return true;
->>>>>>> refs/remotes/origin/main
+
+      if (loginUser && loginUser.username === username) {
+        const isPasswordValid = await bcrypt.compare(password, loginUser.password);
+        if (isPasswordValid) {
+          setUser(loginUser);
+          localStorage.setItem('user', JSON.stringify(loginUser)); // Store user in localStorage
+          return true;
+        }
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -101,7 +78,9 @@ export const AuthProvider = ({ children }) => {
             email: userInfo.email 
           });
         }
-        setUser(db.get(userInfo.name));
+        const replitUser = db.get(userInfo.name);
+        setUser(replitUser);
+        localStorage.setItem('user', JSON.stringify(replitUser)); // Store user in localStorage
         return true;
       }
     } catch (error) {
@@ -114,7 +93,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // Check if user already exists
       if (db.get(username)) {
-        return res.status(400).json({ error: 'Username already exists' });
+        return false; // Or throw an error
       }
 
       // Hash password
@@ -126,7 +105,8 @@ export const AuthProvider = ({ children }) => {
         email, 
         password: hashedPassword, 
         role: 'user', 
-        isVerified: false 
+        isVerified: false,
+        isDefaultPassword: false
       });
 
       // ... (rest of the registration logic, like sending verification email)
@@ -138,7 +118,42 @@ export const AuthProvider = ({ children }) => {
     return false;
   };
 
-  // ... (other functions: logout, changePassword, updateProfile)
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('user'); // Remove user from localStorage
+  };
+
+  const changePassword = async (newPassword) => {
+    try {
+      if (!user) {
+        throw new Error('User not logged in');
+      }
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+      db.set(user.username, { ...user, password: hashedNewPassword, isDefaultPassword: false });
+      setUser({ ...user, password: hashedNewPassword, isDefaultPassword: false });
+      localStorage.setItem('user', JSON.stringify({ ...user, password: hashedNewPassword, isDefaultPassword: false })); // Update user in localStorage
+    } catch (error) {
+      console.error('Change password error:', error);
+      throw error;
+    }
+  };
+
+  const updateProfile = async (profileData) => {
+    try {
+      if (!user) {
+        throw new Error('User not logged in');
+      }
+
+      db.set(user.username, { ...user, ...profileData });
+      setUser({ ...user, ...profileData });
+      localStorage.setItem('user', JSON.stringify({ ...user, ...profileData })); // Update user in localStorage
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
+    }
+  };
 
   const value = {
     user,
@@ -147,15 +162,12 @@ export const AuthProvider = ({ children }) => {
     changePassword,
     register,
     updateProfile,
-    isLoading
+    isLoading,
+    replitLogin
   };
 
   return (
-<<<<<<< HEAD
-    <AuthContext.Provider value={{ user, login, logout, changePassword, register, updateProfile, replitLogin }}>
-=======
     <AuthContext.Provider value={value}>
->>>>>>> refs/remotes/origin/main
       {children}
     </AuthContext.Provider>
   );

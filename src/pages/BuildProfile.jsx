@@ -14,22 +14,13 @@ import {
 } from "@/components/ui/select";
 
 const BuildProfile = () => {
-<<<<<<< HEAD
   const [name, setName] = useState('Test User'); // Default name
   const [age, setAge] = useState('16'); // Default age
   const [gender, setGender] = useState('prefer-not-to-say'); // Default gender
-=======
-  const [name, setName] = useState("");
-  const [age, setAge] = useState("");
-  const [gender, setGender] = useState("");
->>>>>>> refs/remotes/origin/main
   const { user, updateProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-<<<<<<< HEAD
-  // ... (rest of the component code)
-=======
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -93,7 +84,6 @@ const BuildProfile = () => {
       </Card>
     </div>
   );
->>>>>>> refs/remotes/origin/main
 };
 
 export default BuildProfile;
